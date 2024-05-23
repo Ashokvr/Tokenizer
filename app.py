@@ -2,11 +2,15 @@ import streamlit as st
 from transformers import BertTokenizer
 import nltk
 from nltk.corpus import stopwords
-from nltk.stem import SnowballStemmer
+from nltk.stem import SnowballStemmer, WordNetLemmatizer
+from tokenizers import Tokenizer, models, pre_tokenizers, trainers
 import re
 
-nltk.download('stopwords')
 
+
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 # Load BERT tokenizer
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
@@ -14,6 +18,10 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 stemmer = SnowballStemmer("english")
 stop_words = set(stopwords.words('english'))
 
+ # Lemmatization
+lemmatizer = WordNetLemmatizer()
+words = [lemmatizer.lemmatize(word) for word in stop_words]
+   
 def preprocess_text(text):
     text = text.lower()  # Lowercase
     text = re.sub(r'\W', ' ', text)  # Remove punctuation and special characters
@@ -31,6 +39,7 @@ def main():
     user_input = st.text_area("Enter text to be processed:")
 
     if st.button("Process Text"):
+
         input_tokens = tokenize_text(user_input)
         st.write("Original Text Token Count:")
         st.write(len(input_tokens))
@@ -46,6 +55,21 @@ def main():
 
         st.write("Tokens of Preprocessed Text:")
         st.write(preprocessed_tokens)
+        preprocessed_text = str(preprocessed_text)
+
+        # Encoding using BPE
+        # tokenizer = Tokenizer(models.BPE())
+        # tokenizer.pre_tokenizer = pre_tokenizers.Whitespace()
+        # trainer = trainers.BpeTrainer()
+        # tokenizer.train_from_iterator([preprocessed_text], trainer)
+        # encoded = tokenizer.encode(preprocessed_text)
+        # encoded_prompt = ' '.join(encoded.tokens)
+        # encoded_preprocessed_text = st.text_area("Preprocessed Encoded Text:", encoded_prompt, height=200)
+        # encoded_preprocessed_tokens = tokenize_text(encoded_preprocessed_text)
+        # st.write("Encoded Preprocessed Text Token Count:")
+        # st.write(len(encoded_preprocessed_tokens))
+       
+        # print(encoded.tokens)
 
     st.markdown("""
         ### Instructions:
